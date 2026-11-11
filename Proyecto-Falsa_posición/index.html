@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecosistema Educativo - Método de Falsa Posición (Regula Falsi)</title>
+    <!-- Tailwind CSS para diseño moderno y académico -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax para renderizado de fórmulas LaTeX -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']],
+                processEscapes: true
+            },
+            chtml: {
+                scale: 1.05,
+                displayAlign: 'center',
+                displayIndent: '0'
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <!-- Chart.js para la gráfica interactiva -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .presentation-mode { font-size: 1.25rem !important; }
+        .presentation-mode h1 { font-size: 2.5rem !important; }
+        .presentation-mode h2 { font-size: 2rem !important; }
+        .presentation-mode h3 { font-size: 1.75rem !important; }
+        mjx-container { color: inherit; }
+        mjx-container[display="true"] { margin: 1rem 0 !important; overflow-x: auto; overflow-y: hidden; }
+        .formula-panel { display: flex; align-items: center; justify-content: center; min-height: 5.5rem; }
+        .formula-panel mjx-container[display="true"] { margin: .5rem 0 !important; }
+        .math-inline { white-space: normal; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+    <!-- Navegación Superior -->
+    <header id="main-header" class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold">Método de Falsa Posición (Regula Falsi)</h1>
+                <p class="text-xs text-indigo-200">Ingeniería de Software — UDES</p>
+            </div>
+            <nav class="flex items-center space-x-4 mt-2 sm:mt-0">
+                <a href="#introduccion" class="hover:text-indigo-300 text-sm font-medium">Introducción</a>
+                <a href="#fundamentos" class="hover:text-indigo-300 text-sm font-medium">Fundamentos</a>
+                <a href="#formula" class="hover:text-indigo-300 text-sm font-medium">Fórmula</a>
+                <a href="#ejemplo" class="hover:text-indigo-300 text-sm font-medium">Ejemplo Cloud</a>
+                <a href="juego.html" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition shadow">Juego Educativo 🎮</a>
+                <a href="#calculadora" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-sm font-semibold transition">Calculadora</a>
+                <button onclick="togglePresentationMode()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-3 py-1.5 rounded-lg text-sm font-bold transition">Modo Presentación</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main id="content-container" class="max-w-7xl mx-auto px-4 py-8 space-y-12">
+
+        <!-- 1. Introducción -->
+        <section id="introduccion" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-indigo-900 mb-4">1. Introducción y Contexto en Ingeniería de Software</h2>
+            <p class="text-slate-600 mb-4">
+                En el desarrollo de software moderno y arquitecturas de microservicios (como clústeres en la nube con Kubernetes), la relación entre los recursos computacionales asignados y el rendimiento o costo operativo responde a funciones no lineales complejas. La búsqueda manual o analítica de puntos de equilibrio suele ser inviable, requiriendo métodos numéricos robustos.
+            </p>
+            <div class="grid md:grid-cols-2 gap-6 mt-6">
+                <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100">
+                    <h3 class="font-bold text-indigo-900 text-lg mb-2">¿Qué es Falsa Posición (Regula Falsi)?</h3>
+                    <p class="text-sm text-slate-700">Es un método numérico cerrado para localizar raíces de funciones continuas. Combina la convergencia garantizada del método de bisección con la eficiencia de la interpolación lineal mediante una recta secante entre los extremos del intervalo.</p>
+                </div>
+                <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-100">
+                    <h3 class="font-bold text-emerald-900 text-lg mb-2">Aplicación en Cloud Computing</h3>
+                    <p class="text-sm text-slate-700">Permite calcular con alta precisión (error relativo menor al 0.05%) el número exacto de contenedores activos necesarios para evitar colapsos por déficit de rendimiento y prevenir sobrecostos financieros por exceso de recursos.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Fundamentos Matemáticos -->
+        <section id="fundamentos" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-indigo-900 mb-4">2. Fundamentos Matemáticos</h2>
+            <ul class="list-disc list-inside space-y-3 text-slate-700">
+                <li><strong>Teorema del Valor Intermedio:</strong> Si una función \(f(x)\) es continua en el intervalo cerrado \([a, b]\) y \(f(a)\) y \(f(b)\) tienen signos opuestos (\(f(a) \cdot f(b) < 0\)), existe al menos una raíz real \(c \in (a, b)\) tal que \(f(c) = 0\).</li>
+                <li><strong>Interpretación Geométrica:</strong> En lugar de evaluar el punto medio (como la bisección), Regula Falsi une los puntos \((a, f(a))\) y \((b, f(b))\) con una recta secante. El punto donde esta recta cruza el eje \(x\) se toma como la nueva aproximación \(x_r\).</li>
+            </ul>
+        </section>
+
+        <!-- 3. Fórmula del Método -->
+        <section id="formula" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-indigo-900 mb-4">3. Fórmula del Método de Falsa Posición</h2>
+            <p class="text-slate-600 mb-4">La fórmula algebraica para calcular la aproximación \(x_r\) es:</p>
+            <div class="formula-panel bg-slate-900 text-white p-6 rounded-xl text-center overflow-x-auto my-4">
+                \[\boxed{x_r = \frac{a f(b) - b f(a)}{f(b) - f(a)}}\]
+            </div>
+            <p class="text-slate-600">O en su forma equivalente:</p>
+            <div class="formula-panel bg-slate-900 text-white p-6 rounded-xl text-center overflow-x-auto my-4">
+                \[\boxed{x_r = a - \frac{f(a)(b - a)}{f(b) - f(a)}}\]
+            </div>
+        </section>
+
+        <!-- 4. Ejemplo Resuelto (Caso Cloud) -->
+        <section id="ejemplo" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-indigo-900 mb-4">4. Ejemplo Resuelto: Optimización de Contenedores</h2>
+            <p class="text-slate-600 mb-4">
+                Función de rendimiento del clúster: \(f(x) = x^3 - 3x - 1\), en el intervalo inicial \([1, 2]\), con una tolerancia estricta de error relativo \(\varepsilon_a < 0.05\%\).
+            </p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-indigo-900 text-white text-sm">
+                            <th class="p-3">Iteración (\(i\))</th>
+                            <th class="p-3">Extremo \(a\)</th>
+                            <th class="p-3">Extremo \(b\)</th>
+                            <th class="p-3">Aproximación \(x_r\)</th>
+                            <th class="p-3">Evaluación \(f(x_r)\)</th>
+                            <th class="p-3">Error Relativo (\(\varepsilon_a\))</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 text-sm">
+                        <tr><td class="p-3 font-semibold">1</td><td class="p-3">1.000000</td><td class="p-3">2.000000</td><td class="p-3">1.750000</td><td class="p-3">-0.890625</td><td class="p-3">—</td></tr>
+                        <tr class="bg-slate-50"><td class="p-3 font-semibold">2</td><td class="p-3">1.750000</td><td class="p-3">2.000000</td><td class="p-3">1.867769</td><td class="p-3">-0.087484</td><td class="p-3">6.3053%</td></tr>
+                        <tr><td class="p-3 font-semibold">3</td><td class="p-3">1.867769</td><td class="p-3">2.000000</td><td class="p-3">1.878406</td><td class="p-3">-0.007432</td><td class="p-3">0.5663%</td></tr>
+                        <tr class="bg-slate-50 font-bold text-emerald-700"><td class="p-3">4</td><td class="p-3">1.878406</td><td class="p-3">2.000000</td><td class="p-3">1.879303</td><td class="p-3">-0.000623</td><td class="p-3">0.0477% (¡Parada!)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="mt-4 text-sm text-slate-700"><strong>Resultado final:</strong> \(x \approx 1.8793\) (Equivale a configurar exactamente <strong>1,879 contenedores</strong> activos).</p>
+        </section>
+
+        <!-- 5. Calculadora Interactiva -->
+        <section id="calculadora" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-indigo-900 mb-4">5. Calculadora Interactiva de Falsa Posición</h2>
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Controles -->
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4">
+                    <h3 class="font-bold text-slate-800 text-lg">Parámetros de Entrada</h3>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Función \(f(x)\):</label>
+                        <input type="text" id="func-input" value="x**3 - 3*x - 1" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm font-mono">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Extremo \(a\):</label>
+                            <input type="number" id="a-input" value="1" step="any" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Extremo \(b\):</label>
+                            <input type="number" id="b-input" value="2" step="any" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tolerancia (%):</label>
+                            <input type="number" id="tol-input" value="0.05" step="any" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Máx. Iteraciones:</label>
+                            <input type="number" id="max-iter-input" value="50" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm">
+                        </div>
+                    </div>
+                    <button onclick="runCalculator()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition shadow-md">Calcular Raíz</button>
+                    <div id="calc-message" class="text-xs font-medium p-3 rounded-lg hidden"></div>
+                </div>
+
+                <!-- Resultados y Gráfica -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-slate-900 text-white p-6 rounded-xl">
+                        <h3 class="text-sm font-semibold text-indigo-300 mb-2">Resultado del Motor Matemático</h3>
+                        <div id="calc-result-summary" class="text-lg font-bold">Introduce parámetros y haz clic en Calcular.</div>
+                    </div>
+                    <div class="overflow-x-auto max-h-64 border border-slate-200 rounded-xl">
+                        <table id="calc-table" class="w-full text-left border-collapse text-xs">
+                            <thead class="bg-slate-100 text-slate-700 sticky top-0">
+                                <tr>
+                                    <th class="p-2.5">Iter</th>
+                                    <th class="p-2.5">a</th>
+                                    <th class="p-2.5">b</th>
+                                    <th class="p-2.5">f(a)</th>
+                                    <th class="p-2.5">f(b)</th>
+                                    <th class="p-2.5">xr</th>
+                                    <th class="p-2.5">f(xr)</th>
+                                    <th class="p-2.5">Error (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calc-tbody" class="divide-y divide-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-8 mt-16 text-center text-sm">
+        <p>Universidad de Santander (UDES) — Facultad de Ingeniería de Software</p>
+        <p class="text-slate-400 text-xs mt-1">Proyecto de Aula: Ecosistema Educativo sobre el Método de Falsa Posición</p>
+    </footer>
+
+    <!-- Lógica JavaScript del Motor Matemático unificado y Calculadora -->
+    <script>
+        function togglePresentationMode() {
+            document.body.classList.toggle('presentation-mode');
+        }
+
+        function safeEval(funcStr, x) {
+            try {
+                // Reemplazos seguros para mathjs o eval simple en JS
+                let expr = funcStr
+                    .replace(/\^/g, '**')
+                    .replace(/sin/g, 'Math.sin')
+                    .replace(/cos/g, 'Math.cos')
+                    .replace(/exp/g, 'Math.exp')
+                    .replace(/log/g, 'Math.log')
+                    .replace(/sqrt/g, 'Math.sqrt');
+                return Function('x', 'return ' + expr)(x);
+            } catch (e) {
+                throw new Error("Error al evaluar la función matemática.");
+            }
+        }
+
+        function runCalculator() {
+            const funcStr = document.getElementById('func-input').value;
+            const aInit = parseFloat(document.getElementById('a-input').value);
+            const bInit = parseFloat(document.getElementById('b-input').value);
+            const tol = parseFloat(document.getElementById('tol-input').value);
+            const maxIter = parseInt(document.getElementById('max-iter-input').value);
+            const msgDiv = document.getElementById('calc-message');
+            const summaryDiv = document.getElementById('calc-result-summary');
+            const tbody = document.getElementById('calc-tbody');
+
+            msgDiv.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800');
+            tbody.innerHTML = '';
+
+            if (isNaN(aInit) || isNaN(bInit) || aInit >= bInit) {
+                msgDiv.classList.add('bg-rose-100', 'text-rose-800');
+                msgDiv.innerText = "Error: El extremo 'a' debe ser menor que 'b'.";
+                return;
+            }
+
+            let a = aInit, b = bInit;
+            let fa, fb;
+            try {
+                fa = safeEval(funcStr, a);
+                fb = safeEval(funcStr, b);
+            } catch (err) {
+                msgDiv.classList.add('bg-rose-100', 'text-rose-800');
+                msgDiv.innerText = err.message;
+                return;
+            }
+
+            if (fa * fb >= 0) {
+                msgDiv.classList.add('bg-rose-100', 'text-rose-800');
+                msgDiv.innerText = `No hay cambio de signo en [\({a},\){b}]. f(a) = \({fa.toFixed(4)}, f(b) =\){fb.toFixed(4)}. f(a)*f(b) >= 0.`;
+                summaryDiv.innerText = "Cálculo detenido: Sin cambio de signo.";
+                return;
+            }
+
+            let iterations = [];
+            let xrPrev = null;
+            let finalXr = null;
+            let successMsg = "";
+
+            for (let i = 1; i <= maxIter; i++) {
+                let denominator = fb - fa;
+                if (Math.abs(denominator) < 1e-15) {
+                    msgDiv.classList.add('bg-rose-100', 'text-rose-800');
+                    msgDiv.innerText = "Denominador demasiado cercano a cero (inestabilidad numérica).";
+                    return;
+                }
+
+                let xr = (a * fb - b * fa) / denominator;
+                let fxr;
+                try {
+                    fxr = safeEval(funcStr, xr);
+                } catch (err) {
+                    msgDiv.classList.add('bg-rose-100', 'text-rose-800');
+                    msgDiv.innerText = err.message;
+                    return;
+                }
+
+                let error = null;
+                if (xrPrev !== null && Math.abs(xr) > 1e-15) {
+                    error = Math.abs((xr - xrPrev) / xr) * 100.0;
+                }
+
+                iterations.push({ iter: i, a, b, fa, fb, xr, fxr, error });
+                finalXr = xr;
+
+                if (fxr === 0 || (error !== null && error <= tol)) {
+                    successMsg = `¡Criterio de parada alcanzado en la iteración \({i}! Raíz: x ≈\){xr.toFixed(6)}`;
+                    break;
+                }
+
+                if (fa * fxr < 0) {
+                    b = xr;
+                    fb = fxr;
+                } else {
+                    a = xr;
+                    fa = fxr;
+                }
+                xrPrev = xr;
+                if (i === maxIter) {
+                    successMsg = "Se alcanzó el número máximo de iteraciones.";
+                }
+            }
+
+            msgDiv.classList.add('bg-emerald-100', 'text-emerald-800');
+            msgDiv.innerText = successMsg;
+            summaryDiv.innerHTML = `Raíz aproximada: <span class="text-emerald-400 font-mono">\({finalXr.toFixed(6)}</span> (Iteraciones:\){iterations.length})`;
+
+            iterations.forEach(it => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2.5 font-semibold">${it.iter}</td>
+                    <td class="p-2.5 font-mono">${it.a.toFixed(6)}</td>
+                    <td class="p-2.5 font-mono">${it.b.toFixed(6)}</td>
+                    <td class="p-2.5 font-mono">${it.fa.toFixed(4)}</td>
+                    <td class="p-2.5 font-mono">${it.fb.toFixed(4)}</td>
+                    <td class="p-2.5 font-mono font-bold text-indigo-700">${it.xr.toFixed(6)}</td>
+                    <td class="p-2.5 font-mono">${it.fxr.toFixed(6)}</td>
+                    <td class="p-2.5 font-mono">${it.error !== null ? it.error.toFixed(4) + '%' : '—'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Ejecutar al cargar la página con el caso por defecto
+        window.onload = function() {
+            runCalculator();
+        };
+    </script>
+</body>
+</html>

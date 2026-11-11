@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego Educativo - Método de Falsa Posición</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']],
+                processEscapes: true
+            },
+            chtml: { scale: 1.05, displayAlign: 'left', displayIndent: '0' },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <style>
+        mjx-container { color: inherit; }
+        mjx-container[display="true"] { margin: .65rem 0 !important; overflow-x: auto; overflow-y: hidden; }
+        .math-content { line-height: 1.9; }
+        .option-btn mjx-container { font-size: 1em !important; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-lg font-bold text-indigo-400">Desafío Regula Falsi — Juego Educativo</h1>
+            <p class="text-xs text-slate-400">Aprende Falsa Posición paso a paso</p>
+        </div>
+        <div class="flex items-center space-x-6">
+            <div>Puntuación: <span id="score" class="font-bold text-emerald-400">0</span> pts</div>
+            <div>Nivel: <span id="level-indicator" class="font-bold text-amber-400">1</span>/4</div>
+            <a href="index.html" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-xs font-semibold">Volver al Sitio Web</a>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 py-8 w-full flex-grow flex flex-col justify-center">
+        <div id="game-card" class="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-xl space-y-6">
+            <div id="level-header">
+                <span class="bg-indigo-900 text-indigo-200 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Nivel 1: Reconocer el Intervalo</span>
+                <h2 id="question-title" class="text-xl font-bold mt-3">¿En cuál de los siguientes intervalos la función \(f(x) = x^3 - 3x - 1\) cumple con el Teorema del Valor Intermedio (cambio de signo)?</h2>
+            </div>
+
+            <div id="options-container" class="grid gap-3">
+                <button onclick="checkAnswer(0)" class="option-btn text-left p-4 rounded-xl bg-slate-700 hover:bg-indigo-600 transition border border-slate-600 text-sm font-medium">A) [0, 1] -> f(0)=-1, f(1)=-3</button>
+                <button onclick="checkAnswer(1)" class="option-btn text-left p-4 rounded-xl bg-slate-700 hover:bg-indigo-600 transition border border-slate-600 text-sm font-medium">B) [1, 2] -> f(1)=-3, f(2)=1</button>
+                <button onclick="checkAnswer(2)" class="option-btn text-left p-4 rounded-xl bg-slate-700 hover:bg-indigo-600 transition border border-slate-600 text-sm font-medium">C) [2, 3] -> f(2)=1, f(3)=17</button>
+            </div>
+
+            <div id="feedback" class="hidden p-4 rounded-xl text-sm font-medium"></div>
+
+            <button id="next-btn" onclick="nextLevel()" class="hidden w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition">Siguiente Nivel</button>
+        </div>
+    </main>
+
+    <footer class="bg-slate-800 border-t border-slate-700 py-4 text-center text-xs text-slate-400">
+        Universidad de Santander (UDES) — Ingeniería de Software
+    </footer>
+
+    <script>
+        let currentLevel = 1;
+        let score = 0;
+
+        const levels = [
+            {
+                level: 1,
+                title: "Nivel 1: Reconocer el Intervalo",
+                question: "¿En cuál de los siguientes intervalos la función \(f(x) = x^3 - 3x - 1\) cumple con el Teorema del Valor Intermedio (cambio de signo \\(f(a)\\cdot f(b) < 0\\))?",
+                options: [
+                    "A) \\([0, 1]\\) → \\(f(0)=-1,\\; f(1)=-3\\) (Sin cambio de signo)",
+                    "B) \\([1, 2]\\) → \\(f(1)=-3,\\; f(2)=1\\) (Cambio de signo: \\((-3)(1)<0\\))",
+                    "C) \\([2, 3]\\) → \\(f(2)=1,\\; f(3)=17\\) (Sin cambio de signo)"
+                ],
+                correct: 1,
+                explanation: "¡Correcto! En el intervalo \\([1, 2]\\), \\(f(1)=-3\\) y \\(f(2)=1\\). Su producto es negativo: \\((-3)(1)<0\\), lo que garantiza la existencia de al menos una raíz según el teorema del valor intermedio."
+            },
+            {
+                level: 2,
+                title: "Nivel 2: Calcular la Aproximación",
+                question: "Dado el intervalo \\([1, 2]\\), con \\(f(1)=-3\\) y \\(f(2)=1\\), ¿cuál es la primera aproximación \\(x_r\\) usando la fórmula de Falsa Posición? \\[x_r=b-\\frac{f(b)(a-b)}{f(a)-f(b)}\\]",
+                options: [
+                    "A) \\(x_r=1.500000\\)",
+                    "B) \\(x_r=1.750000\\)",
+                    "C) \\(x_r=1.867769\\)"
+                ],
+                correct: 1,
+                explanation: "¡Correcto! Aplicando la fórmula: \\[x_r=2-\\frac{(1)(1-2)}{-3-1}=2-\\frac{-1}{-4}=2-0.25=1.750000\\]"
+            },
+            {
+                level: 3,
+                title: "Nivel 3: Actualizar el Intervalo",
+                question: "En la primera iteración obtuvimos \\(x_r=1.75\\), con \\(f(1.75)=-0.890625\\). Si \\(f(a)=-3\\) y \\(f(b)=1\\), ¿cómo se actualiza el intervalo?",
+                options: [
+                    "A) \\(f(a)\\cdot f(x_r)>0\\) (\u22123 \u00d7 \u22120.890 > 0), por lo que \\(a=1.75\\). Nuevo intervalo: \\([1.75, 2]\\)",
+                    "B) El intervalo no cambia",
+                    "C) Se actualiza \\(b=1.75\\)"
+                ],
+                correct: 0,
+                explanation: "¡Correcto! Como \\(f(a)\\) y \\(f(x_r)\\) tienen el mismo signo (negativo), reemplazamos el extremo \\(a\\) por \\(x_r\\). El nuevo intervalo es \\([1.75, 2]\\)."
+            },
+            {
+                level: 4,
+                title: "Nivel 4: Criterio de Parada y Éxito",
+                question: "¿Cuál es el criterio para detener el algoritmo de la falsa posición en este proyecto de ingeniería?",
+                options: [
+                    "A) Cuando pasen exactamente 10 minutos",
+                    "B) Cuando el error relativo porcentual sea menor al 0.05% (\\(\\varepsilon_a < 0.05\\%\\)) o se encuentre una raíz exacta",
+                    "C) Cuando f(x_r) sea exactamente igual a 10"
+                ],
+                correct: 1,
+                explanation: "¡Excelente! El algoritmo se detiene cuando el error relativo porcentual es inferior al \\(0.05\\%\\), alcanzado en la cuarta iteración con \\(0.0477\\%\\)."
+            }
+        ];
+
+        function loadLevel() {
+            if (window.MathJax && MathJax.typesetClear) {
+                MathJax.typesetClear([
+                    document.getElementById('level-header'),
+                    document.getElementById('options-container'),
+                    document.getElementById('feedback')
+                ]);
+            }
+            let data = levels[currentLevel - 1];
+            document.getElementById('level-indicator').innerText = currentLevel;
+            document.getElementById('level-header').innerHTML = `
+                <span class="bg-indigo-900 text-indigo-200 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">${data.title}</span>
+                <h2 class="text-xl font-bold mt-3">${data.question}</h2>
+            `;
+            let container = document.getElementById('options-container');
+            container.innerHTML = '';
+            data.options.forEach((opt, idx) => {
+                let btn = document.createElement('button');
+                btn.className = "option-btn text-left p-4 rounded-xl bg-slate-700 hover:bg-indigo-600 transition border border-slate-600 text-sm font-medium";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx);
+                container.appendChild(btn);
+            });
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise([document.getElementById('level-header'), container]).catch(err => console.warn('MathJax:', err));
+            }
+        }
+
+        function checkAnswer(selectedIdx) {
+            let data = levels[currentLevel - 1];
+            let feedback = document.getElementById('feedback');
+            if (window.MathJax && MathJax.typesetClear) MathJax.typesetClear([feedback]);
+            feedback.classList.remove('hidden');
+            
+            if (selectedIdx === data.correct) {
+                score += 25;
+                document.getElementById('score').innerText = score;
+                feedback.className = "p-4 rounded-xl text-sm font-medium bg-emerald-900 text-emerald-200 border border-emerald-700";
+                feedback.innerHTML = `<strong>¡Correcto!</strong> ${data.explanation}`;
+                document.getElementById('next-btn').classList.remove('hidden');
+            } else {
+                feedback.className = "p-4 rounded-xl text-sm font-medium bg-rose-900 text-rose-200 border border-rose-700";
+                feedback.innerHTML = `<strong>Incorrecto.</strong> Inténtalo de nuevo para comprender el procedimiento del método.`;
+            }
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise([feedback]).catch(err => console.warn('MathJax:', err));
+            }
+        }
+
+        function nextLevel() {
+            if (currentLevel < 4) {
+                currentLevel++;
+                loadLevel();
+            } else {
+                alert("¡Felicitaciones! Has completado todos los niveles del juego educativo sobre Falsa Posición.");
+                currentLevel = 1;
+                score = 0;
+                document.getElementById('score').innerText = score;
+                loadLevel();
+            }
+        }
+    </script>
+</body>
+</html>
